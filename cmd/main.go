@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"auth/internal/core/handlers"
+	"auth/internal/core/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,8 +16,13 @@ var (
 func main() {
 	r := gin.Default()
 
-	r.POST("/login", handlers.Login)
-	r.GET("/refresh-token", handlers.RefreshToken)
+	privateKey := []byte("private.key")
+	authService := services.NewUserService(privateKey)
+
+	authHandlers := handlers.NewAuthHandler(authService)
+
+	r.POST("/login", authHandlers.Login)
+	r.GET("/refresh-token", authHandlers.RefreshToken)
 
 	r.Run(fmt.Sprintf(":%d", port))
 }

@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"auth/internal/core/models"
-	"auth/internal/core/services"
 	"context"
 	"log"
 	"net/http"
@@ -10,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Login(c *gin.Context) {
+func (h *AuthHandler) Login(c *gin.Context) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -25,15 +24,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	privateKey := []byte("private.key")
-	authService := services.NewUserService(privateKey)
-
-	accessToken, err := authService.GenerateAccessToken(ctx, loginData.Username)
+	accessToken, err := h.service.GenerateAccessToken(ctx, loginData.Username)
 	if err != nil {
 		log.Fatalf("Error generando access token: %v", err)
 	}
 
-	refreshToken, err := authService.GenerateRefreshToken(ctx)
+	refreshToken, err := h.service.GenerateRefreshToken(ctx)
 	if err != nil {
 		log.Fatalf("Error generando refresh token: %v", err)
 	}
