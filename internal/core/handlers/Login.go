@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var refreshTokens = make(map[string]string)
+
 func (h *AuthHandler) Login(c *gin.Context) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -29,10 +31,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		log.Fatalf("Error generando access token: %v", err)
 	}
 
-	refreshToken, err := h.service.GenerateRefreshToken(ctx)
+	refreshToken, err := h.service.GenerateRefreshToken(ctx, loginData.Username)
 	if err != nil {
 		log.Fatalf("Error generando refresh token: %v", err)
 	}
+	refreshTokens[refreshToken] = loginData.Username
 
 	c.JSON(http.StatusOK, gin.H{
 		"access_token":  accessToken,

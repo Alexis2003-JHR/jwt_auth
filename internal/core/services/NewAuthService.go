@@ -1,16 +1,19 @@
 package services
 
-import "context"
+import (
+	"context"
+	"crypto/rsa"
+)
 
 type AuthService interface {
 	GenerateAccessToken(ctx context.Context, username string) (string, error)
-	GenerateRefreshToken(ctx context.Context) (string, error)
+	GenerateRefreshToken(ctx context.Context, username string) (string, error)
 }
 
 type authService struct {
-	privateKey []byte
+	privateKey *rsa.PrivateKey
 }
 
-func NewUserService(privateKey []byte) AuthService {
+func NewUserService(privateKey *rsa.PrivateKey) AuthService {
 	return &authService{privateKey: privateKey}
 }

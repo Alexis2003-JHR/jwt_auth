@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"auth/internal/core/handlers"
 	"auth/internal/core/services"
+	"auth/internal/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,7 +18,10 @@ var (
 func main() {
 	r := gin.Default()
 
-	privateKey := []byte("private.key")
+	privateKey, err := utils.LoadPrivateKey("private.key")
+	if err != nil {
+		log.Print("Error al obtener private.key ", err)
+	}
 	authService := services.NewUserService(privateKey)
 
 	authHandlers := handlers.NewAuthHandler(authService)
