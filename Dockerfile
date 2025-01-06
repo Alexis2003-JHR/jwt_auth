@@ -1,14 +1,24 @@
-FROM golang:1.23.3
+FROM golang:1.23.3-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
-RUN go mod download
-
 COPY . .
 
-RUN go build -o main ./cmd
+WORKDIR /app/cmd/
 
-EXPOSE 8013
+RUN go mod tidy
+RUN go build -o /app/jwt-auth
 
-CMD [ "./main" ]
+# Stage 2: Run the application using a smaller base image
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/jwt-auth /app/jwt-auth
+
+RUN chmod +x /app/jwt-auth
+
+COPY private.key /app/private.key
+COPY public.key /app/public.key
+
+CMD ["./jwt-auth"]
